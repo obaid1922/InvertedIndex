@@ -38,8 +38,7 @@ def writeSortBasedIndex(index):
                 file.write(str(currentDoc - previousDoc) + "\t")
                 file.write(str(position - previousPostion) + "\t")
                 previousPostion = position
-
-            previousDoc = currentDoc
+                previousDoc = currentDoc
         file.write("\n")
 
 
@@ -60,11 +59,12 @@ def writeHashIndex(indexHashMap):
         for innerKey in indexHashMap[key]:
             currentDoc = innerKey
             previousPosition = 0
+            previousPosition = 0
             for position in indexHashMap[key][innerKey]:
                 file.write(str(currentDoc - previousDoc) + "\t")
                 file.write(str(position - previousPosition) + "\t")
                 previousPosition = position
-            previousDoc = currentDoc
+                previousDoc = currentDoc
 
         file.write("\n")
 
@@ -113,7 +113,8 @@ def sortBasedIndexer(tupleList):
     return index
 
 
-path = str(sys.argv[1])
+#path = str(sys.argv[1])
+path = "/home/obaid/PycharmProjects/InvertedIndex/test"
 fileNames = listdir(path)
 docId = 0
 termId = 0
