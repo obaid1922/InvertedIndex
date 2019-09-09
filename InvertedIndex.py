@@ -4,6 +4,7 @@ from os import listdir
 from nltk.stem import PorterStemmer
 from nltk.tokenize import TweetTokenizer as tokenizer
 import sys
+import regex
 
 
 class Posting:
@@ -112,7 +113,8 @@ def sortBasedIndexer(tupleList):
     return index
 
 
-path = str(sys.argv[1])
+# path = str(sys.argv[1])
+path = "/home/obaid/PycharmProjects/InvertedIndex/test"
 fileNames = listdir(path)
 docId = 0
 termId = 0
@@ -134,7 +136,7 @@ for name in fileNames:
         for junk in soup(["script", "style"]):
             junk.decompose()
         data = soup.get_text()
-        words = tokenizer().tokenize(data)
+        words = re.findall(r"\b[0-9A-Za-z]+(?:['-]?[0-9A-Za-z]+)*\b", data)
         positionCounter = 0
         for word in words:
             word = word.lower()
