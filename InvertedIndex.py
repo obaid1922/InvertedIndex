@@ -3,6 +3,7 @@ import re
 from os import listdir
 from nltk.stem import PorterStemmer
 from nltk.tokenize import TweetTokenizer as tokenizer
+import sys
 
 
 class Posting:
@@ -111,7 +112,7 @@ def sortBasedIndexer(tupleList):
     return index
 
 
-path = '/home/obaid/PycharmProjects/InvertedIndex/test'
+path = str(sys.argv[1])
 fileNames = listdir(path)
 docId = 0
 termId = 0
