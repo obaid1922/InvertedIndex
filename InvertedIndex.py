@@ -113,8 +113,7 @@ def sortBasedIndexer(tupleList):
     return index
 
 
-# path = str(sys.argv[1])
-path = "/home/obaid/PycharmProjects/InvertedIndex/test"
+path = str(sys.argv[1])
 fileNames = listdir(path)
 docId = 0
 termId = 0
