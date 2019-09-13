@@ -38,7 +38,29 @@ def readHashInvertedIndex(fileName):
                 invertedIndex[int(entries[0])][decodedDocId] = tempList
             previousPosition = decodedPosition
             previousDoc = decodedDocId
-    print(1)
+    return invertedIndex
 
 
-readHashInvertedIndex("term_index.txt")
+def readVocabulary():
+    vocabulary = {}
+    fileContents = open("termids.txt", 'r').read().splitlines()
+    for dictEntry in fileContents:
+        key = dictEntry.split("\t")[1]
+        value = int(dictEntry.split("\t")[0])
+        vocabulary[key] = value
+    return vocabulary
+
+
+def readDocIds():
+    docIds = {}
+    fileContents = open("docids.txt", 'r').read().splitlines()
+    for dictEntry in fileContents:
+        key = dictEntry.split("\t")[1]
+        value = int(dictEntry.split("\t")[0])
+        docIds[key] = value
+    return docIds
+
+
+# index = readHashInvertedIndex("term_index.txt")
+vocab = readVocabulary()
+docs = readDocIds()

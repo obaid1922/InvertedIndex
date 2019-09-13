@@ -74,6 +74,7 @@ def sortBasedIndexer(tupleList):
     tupleList.sort(key=lambda t: t[0])
     previousDocId = tupleList[0][1]
     currentDocId = tupleList[0][1]
+
     previousTermId = tupleList[0][0]
     currentTermId = tupleList[0][0]
     index = []
@@ -114,7 +115,7 @@ def sortBasedIndexer(tupleList):
 
 
 #path = str(sys.argv[1])
-path = "/home/obaid/PycharmProjects/InvertedIndex/test"
+path = "/home/obaid/PycharmProjects/InvertedIndex/corpus"
 fileNames = listdir(path)
 docId = 0
 termId = 0
@@ -136,7 +137,7 @@ for name in fileNames:
         for junk in soup(["script", "style"]):
             junk.decompose()
         data = soup.get_text()
-        words = re.findall(r"\b[0-9A-Za-z]+(?:['-]?[0-9A-Za-z]+)*\b", data)
+        words = regex.findall(r"\b[0-9A-Za-z]+(?:['-]?[0-9A-Za-z]+)*\b", data)
         positionCounter = 0
         for word in words:
             word = word.lower()
