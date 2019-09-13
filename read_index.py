@@ -5,8 +5,8 @@ def readHashInvertedIndex(fileName):
         entries = posting.split(sep="\t")
         previousDoc = 0
         previousPosition = 0
-        currentDoc = int(entries[3])
-        currentPosition = int(entries[4])
+        currentDoc = int(entries[3].split(",")[0])
+        currentPosition = int(entries[3].split(",")[1])
         previousDoc = currentDoc
         previousPosition = currentPosition
         if int(entries[0]) not in invertedIndex:
@@ -22,9 +22,10 @@ def readHashInvertedIndex(fileName):
                 tempList = [currentPosition]
                 invertedIndex[int(entries[0])][currentDoc] = tempList
 
-        for i in range(5, len(entries) - 1, 2):
-            currentDoc = int(entries[i])
-            currentPosition = int(entries[i + 1])
+        for i in range(4, len(entries)):
+            docPositionPair = entries[i].split(",")
+            currentDoc = int(docPositionPair[0])
+            currentPosition = int(docPositionPair[1])
             decodedDocId = currentDoc + previousDoc
             if decodedDocId != previousDoc:
                 previousPosition = 0
@@ -61,6 +62,6 @@ def readDocIds():
     return docIds
 
 
-# index = readHashInvertedIndex("term_index.txt")
+index = readHashInvertedIndex("term_index.txt")
 vocab = readVocabulary()
 docs = readDocIds()
