@@ -30,7 +30,7 @@ def writeSortBasedIndex(index):
         for i in range(1, len(term)):
             wordFrequency += len(term[i].positionList)
         file.write(str(wordFrequency) + "\t")
-        file.write(str(len(term) - 1) + "\t")
+        file.write(str(len(term) - 1))
         for i in range(1, len(term)):
             currentDoc = term[i].docId
             previousPostion = 0
