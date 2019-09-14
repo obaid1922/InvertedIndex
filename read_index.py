@@ -1,7 +1,12 @@
+from nltk.stem import PorterStemmer
+import tqdm
+
+
 def readHashInvertedIndex(fileName):
     invertedIndex = {}
+    stats = {}
     fileContents = open(fileName, 'r').readlines()
-    for posting in fileContents:
+    for posting in tqdm.tqdm(fileContents, desc="Reading Index ", ncols=120):
         entries = posting.split(sep="\t")
         previousDoc = 0
         previousPosition = 0
@@ -9,6 +14,8 @@ def readHashInvertedIndex(fileName):
         currentPosition = int(entries[3].split(",")[1])
         previousDoc = currentDoc
         previousPosition = currentPosition
+        statList = [int(entries[1]), int(entries[2])]
+        stats[int(entries[0])] = statList
         if int(entries[0]) not in invertedIndex:
             innerHash = dict()
             innerHash.setdefault(currentDoc, []).append(currentPosition)
@@ -39,7 +46,7 @@ def readHashInvertedIndex(fileName):
                 invertedIndex[int(entries[0])][decodedDocId] = tempList
             previousPosition = decodedPosition
             previousDoc = decodedDocId
-    return invertedIndex
+    return invertedIndex, stats
 
 
 def readVocabulary():
@@ -62,6 +69,16 @@ def readDocIds():
     return docIds
 
 
-index = readHashInvertedIndex("term_index.txt")
+index, stats = readHashInvertedIndex("term_index.txt")
 vocab = readVocabulary()
 docs = readDocIds()
+query = input("Enter the query word : ")
+query = PorterStemmer().stem(query)
+if query in vocab:
+    print("Listing for term : ", query)
+    termId = vocab[query]
+    print("TERM ID : ", termId)
+    print("Number of documents containing term : ", stats[termId][1])
+    print("Term Frequency in corpus : ", stats[termId][0])
+else:
+    print("Word not found")
