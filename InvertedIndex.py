@@ -5,7 +5,7 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import TweetTokenizer as tokenizer
 import sys
 import regex
-
+import tqdm
 
 class Posting:
     docId = -1
@@ -22,7 +22,7 @@ def writeMappings(dictionary, fileName):
 def writeSortBasedIndex(index):
     previousTerm = currentTerm = 0
     file = open("SortBasedInvertedIndex.txt", "w", encoding="utf-8")
-    for term in index:
+    for term in tqdm.tqdm(index, ncols=120, desc="Writing sort-based index to file"):
         previousDoc = 0
         currentDoc = term[1].docId
         file.write(str(term[0]) + "\t")
@@ -47,7 +47,7 @@ def writeHashIndex(indexHashMap):
     previousTerm = currentTerm = 0
 
     file = open("term_index.txt", "w", encoding="utf-8")
-    for key in indexHashMap:
+    for key in tqdm.tqdm(indexHashMap, ncols=120, desc="Writing HashMap index to file"):
         previousDoc = 0
         currentDoc = list(indexHashMap[key])[0]
         file.write(str(key) + "\t")
@@ -72,7 +72,8 @@ def writeHashIndex(indexHashMap):
 
 
 def sortBasedIndexer(tupleList):
-    print("sorting ..............")
+    print("Creating Sort Based Index ..............")
+    print("Sorting Tuples ..............")
     tupleList.sort(key=lambda t: t[0])
     previousDocId = tupleList[0][1]
     currentDocId = tupleList[0][1]
@@ -117,7 +118,7 @@ def sortBasedIndexer(tupleList):
 
 
 #path = str(sys.argv[1])
-path = "/home/obaid/PycharmProjects/InvertedIndex/test"
+path = "/home/obaid/PycharmProjects/InvertedIndex/corpus"
 fileNames = listdir(path)
 docId = 0
 termId = 0
@@ -129,11 +130,10 @@ tupleList = []
 stopFile = set(open("stoplist.txt").read().splitlines())
 for line in stopFile:
     stopwords[line] = 0
-for name in fileNames:
+for name in tqdm.tqdm(fileNames, ncols=120, desc="Parsing Documents and creating Index"):
     soup = BeautifulSoup(open(path + "/" + name, 'rb').read(), "html.parser", from_encoding="iso-8859-1")
     soup = soup.find("body")
     if soup:
-        print(docId)
         documentId[name] = docId
         docId += 1
         for junk in soup(["script", "style"]):
@@ -162,7 +162,7 @@ for name in fileNames:
                         tempList = [positionCounter]
                         hashInvertedIndex[vocabulary[word]][documentId[name]] = tempList
             positionCounter += 1
-
+print("\n")
 writeHashIndex(hashInvertedIndex)
 writeSortBasedIndex(sortBasedIndexer(tupleList))
 writeMappings(vocabulary, "termids.txt")
