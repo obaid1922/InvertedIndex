@@ -7,6 +7,7 @@ import sys
 import regex
 import tqdm
 
+
 class Posting:
     docId = -1
     positionList = []
@@ -117,53 +118,55 @@ def sortBasedIndexer(tupleList):
     return index
 
 
-#path = str(sys.argv[1])
-path = "/home/obaid/PycharmProjects/InvertedIndex/corpus"
-fileNames = listdir(path)
-docId = 0
-termId = 0
-vocabulary = {}
-stopwords = {}
-documentId = {}
-hashInvertedIndex = {}
-tupleList = []
-stopFile = set(open("stoplist.txt").read().splitlines())
-for line in stopFile:
-    stopwords[line] = 0
-for name in tqdm.tqdm(fileNames, ncols=120, desc="Parsing Documents and creating Index"):
-    soup = BeautifulSoup(open(path + "/" + name, 'rb').read(), "html.parser", from_encoding="iso-8859-1")
-    soup = soup.find("body")
-    if soup:
-        documentId[name] = docId
-        docId += 1
-        for junk in soup(["script", "style"]):
-            junk.decompose()
-        data = soup.get_text()
-        words = regex.findall(r"\b[0-9A-Za-z]+(?:['-]?[0-9A-Za-z]+)*\b", data)
-        positionCounter = 0
-        for word in words:
-            word = word.lower()
-            word = PorterStemmer().stem(word)
-            if word not in vocabulary and word not in stopwords and len(word) > 1:
-                vocabulary[word] = termId
-                termId += 1
-            if word not in stopwords and len(word) > 1:
-                tupleList.append((vocabulary[word], documentId[name], positionCounter))
-                if vocabulary[word] not in hashInvertedIndex:
-                    innerHash = dict()
-                    innerHash.setdefault(documentId[name], []).append(positionCounter)
-                    hashInvertedIndex[vocabulary[word]] = innerHash
-                else:
-                    if documentId[name] in hashInvertedIndex[vocabulary[word]]:
-                        tempList = hashInvertedIndex[vocabulary[word]][documentId[name]]
-                        tempList.append(positionCounter)
-                        hashInvertedIndex[vocabulary[word]][documentId[name]] = tempList
+if sys.argv[1]:
+    path = str(sys.argv[1])
+    fileNames = listdir(path)
+    docId = 0
+    termId = 0
+    vocabulary = {}
+    stopwords = {}
+    documentId = {}
+    hashInvertedIndex = {}
+    tupleList = []
+    stopFile = set(open("stoplist.txt").read().splitlines())
+    for line in stopFile:
+        stopwords[line] = 0
+    for name in tqdm.tqdm(fileNames, ncols=120, desc="Parsing Documents and creating Index"):
+        soup = BeautifulSoup(open(path + "/" + name, 'rb').read(), "html.parser", from_encoding="iso-8859-1")
+        soup = soup.find("body")
+        if soup:
+            documentId[name] = docId
+            docId += 1
+            for junk in soup(["script", "style"]):
+                junk.decompose()
+            data = soup.get_text()
+            words = regex.findall(r"\b[0-9A-Za-z]+(?:['-]?[0-9A-Za-z]+)*\b", data)
+            positionCounter = 0
+            for word in words:
+                word = word.lower()
+                word = PorterStemmer().stem(word)
+                if word not in vocabulary and word not in stopwords and len(word) > 1:
+                    vocabulary[word] = termId
+                    termId += 1
+                if word not in stopwords and len(word) > 1:
+                    tupleList.append((vocabulary[word], documentId[name], positionCounter))
+                    if vocabulary[word] not in hashInvertedIndex:
+                        innerHash = dict()
+                        innerHash.setdefault(documentId[name], []).append(positionCounter)
+                        hashInvertedIndex[vocabulary[word]] = innerHash
                     else:
-                        tempList = [positionCounter]
-                        hashInvertedIndex[vocabulary[word]][documentId[name]] = tempList
-            positionCounter += 1
-print("\n")
-writeHashIndex(hashInvertedIndex)
-writeSortBasedIndex(sortBasedIndexer(tupleList))
-writeMappings(vocabulary, "termids.txt")
-writeMappings(documentId, "docids.txt")
+                        if documentId[name] in hashInvertedIndex[vocabulary[word]]:
+                            tempList = hashInvertedIndex[vocabulary[word]][documentId[name]]
+                            tempList.append(positionCounter)
+                            hashInvertedIndex[vocabulary[word]][documentId[name]] = tempList
+                        else:
+                            tempList = [positionCounter]
+                            hashInvertedIndex[vocabulary[word]][documentId[name]] = tempList
+                positionCounter += 1
+    print("\n")
+    writeHashIndex(hashInvertedIndex)
+    writeSortBasedIndex(sortBasedIndexer(tupleList))
+    writeMappings(vocabulary, "termids.txt")
+    writeMappings(documentId, "docids.txt")
+else:
+    print("Please Enter the path of your corpus")

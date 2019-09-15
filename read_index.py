@@ -1,6 +1,6 @@
 from nltk.stem import PorterStemmer
 import tqdm
-
+import sys
 
 def readHashInvertedIndex(fileName):
     invertedIndex = {}
@@ -69,16 +69,19 @@ def readDocIds():
     return docIds
 
 
-index, stats = readHashInvertedIndex("term_index.txt")
-vocab = readVocabulary()
-docs = readDocIds()
-query = input("Enter the query word : ")
-query = PorterStemmer().stem(query)
-if query in vocab:
-    print("Listing for term : ", query)
-    termId = vocab[query]
-    print("TERM ID : ", termId)
-    print("Number of documents containing term : ", stats[termId][1])
-    print("Term Frequency in corpus : ", stats[termId][0])
+if sys.argv[1]:
+    index, stats = readHashInvertedIndex("term_index.txt")
+    vocab = readVocabulary()
+    docs = readDocIds()
+    query = str(sys.argv[1])
+    query = PorterStemmer().stem(query)
+    if query in vocab:
+        print("Listing for term : ", str(sys.argv[1]))
+        termId = vocab[query]
+        print("TERM ID : ", termId)
+        print("Number of documents containing term : ", stats[termId][1])
+        print("Term Frequency in corpus : ", stats[termId][0])
+    else:
+        print("Word not found")
 else:
-    print("Word not found")
+    print("Please Enter The Query Word")
