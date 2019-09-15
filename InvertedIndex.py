@@ -23,7 +23,10 @@ def writeMappings(dictionary, fileName):
 def writeSortBasedIndex(index):
     previousTerm = currentTerm = 0
     file = open("term_index_sortbased.txt", "w", encoding="utf-8")
+    offsetfile = open("term_info_sortbased.txt", "w", encoding="utf-8")
     for term in tqdm.tqdm(index, ncols=120, desc="Writing sort-based index to file"):
+        offsetfile.write(str(term[0]) + "\t" + str(file.tell()))
+        offsetfile.write("\n")
         previousDoc = 0
         currentDoc = term[1].docId
         file.write(str(term[0]) + " ")
@@ -42,13 +45,18 @@ def writeSortBasedIndex(index):
                 previousPostion = position
                 previousDoc = currentDoc
         file.write("\n")
+    offsetfile.close()
+    file.close()
 
 
 def writeHashIndex(indexHashMap):
     previousTerm = currentTerm = 0
 
     file = open("term_index.txt", "w", encoding="utf-8")
+    offsetfile = open("term_info.txt", "w", encoding="utf-8")
     for key in tqdm.tqdm(indexHashMap, ncols=120, desc="Writing HashMap index to file"):
+        offsetfile.write(str(key) + "\t" + str(file.tell()))
+        offsetfile.write("\n")
         previousDoc = 0
         currentDoc = list(indexHashMap[key])[0]
         file.write(str(key) + " ")
@@ -70,6 +78,9 @@ def writeHashIndex(indexHashMap):
                 previousDoc = currentDoc
 
         file.write("\n")
+    offsetfile.close()
+    file.close()
+    offsetfile.close()
 
 
 def sortBasedIndexer(tupleList):

@@ -3,10 +3,12 @@ import tqdm
 import sys
 
 
-def readHashInvertedIndex(id):
+def readHashInvertedIndex(offset):
     docHash = {}
     stats = {}
-    posting = open("term_index.txt", 'r').read().splitlines()[id]
+    file = open("term_index.txt", 'r')
+    file.seek(offset)
+    posting = file.readline()
     entries = posting.split(sep=" ")
     previousDoc = 0
     previousPosition = 0
@@ -36,6 +38,7 @@ def readHashInvertedIndex(id):
             docHash[decodedDoc] = tempList
         previousDoc = decodedDoc
         previousPosition = decodedPosition
+    file.close()
     return docHash, stats
 
 
@@ -59,15 +62,26 @@ def readDocIds():
     return docIds
 
 
+def readOffset():
+    offsets = {}
+    fileContents = open("term_info.txt", 'r').read().splitlines()
+    for dictEntry in fileContents:
+        key = int(dictEntry.split("\t")[0])
+        value = int(dictEntry.split("\t")[1])
+        offsets[key] = value
+    return offsets
+
+
 if len(sys.argv) > 1:
     vocab = readVocabulary()
     docs = readDocIds()
 
     query = str(sys.argv[1])
     query = PorterStemmer().stem(query)
+    offsets = readOffset()
 
     if query in vocab:
-        index, stats = readHashInvertedIndex(vocab[query])
+        index, stats = readHashInvertedIndex(offsets[vocab[query]])
         print("Listing for term : ", str(sys.argv[1]))
         termId = vocab[query]
         print("TERM ID : ", termId)
