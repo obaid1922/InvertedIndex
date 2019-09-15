@@ -76,7 +76,7 @@ if len(sys.argv) > 1:
     vocab = readVocabulary()
     docs = readDocIds()
 
-    query = str(sys.argv[1])
+    query = str(sys.argv[1]).lower()
     query = PorterStemmer().stem(query)
     offsets = readOffset()
 
