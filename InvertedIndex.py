@@ -22,21 +22,21 @@ def writeMappings(dictionary, fileName):
 
 def writeSortBasedIndex(index):
     previousTerm = currentTerm = 0
-    file = open("SortBasedInvertedIndex.txt", "w", encoding="utf-8")
+    file = open("term_index_sortbased.txt", "w", encoding="utf-8")
     for term in tqdm.tqdm(index, ncols=120, desc="Writing sort-based index to file"):
         previousDoc = 0
         currentDoc = term[1].docId
-        file.write(str(term[0]) + "\t")
+        file.write(str(term[0]) + " ")
         wordFrequency = 0
         for i in range(1, len(term)):
             wordFrequency += len(term[i].positionList)
-        file.write(str(wordFrequency) + "\t")
+        file.write(str(wordFrequency) + " ")
         file.write(str(len(term) - 1))
         for i in range(1, len(term)):
             currentDoc = term[i].docId
             previousPostion = 0
             for position in term[i].positionList:
-                file.write("\t")
+                file.write(" ")
                 file.write(str(currentDoc - previousDoc) + ",")
                 file.write(str(position - previousPostion))
                 previousPostion = position
@@ -51,19 +51,19 @@ def writeHashIndex(indexHashMap):
     for key in tqdm.tqdm(indexHashMap, ncols=120, desc="Writing HashMap index to file"):
         previousDoc = 0
         currentDoc = list(indexHashMap[key])[0]
-        file.write(str(key) + "\t")
+        file.write(str(key) + " ")
         wordFrequency = 0
         for innerKey in indexHashMap[key]:
             wordFrequency += len(indexHashMap[key][innerKey])
 
-        file.write(str(wordFrequency) + "\t")
+        file.write(str(wordFrequency) + " ")
         file.write(str(len(indexHashMap[key])))
         for innerKey in indexHashMap[key]:
             currentDoc = innerKey
             previousPosition = 0
             previousPosition = 0
             for position in indexHashMap[key][innerKey]:
-                file.write("\t")
+                file.write(" ")
                 file.write(str(currentDoc - previousDoc) + ",")
                 file.write(str(position - previousPosition))
                 previousPosition = position
@@ -118,7 +118,7 @@ def sortBasedIndexer(tupleList):
     return index
 
 
-if sys.argv[1]:
+if len(sys.argv) > 1:
     path = str(sys.argv[1])
     fileNames = listdir(path)
     docId = 0
@@ -144,11 +144,12 @@ if sys.argv[1]:
             positionCounter = 0
             for word in words:
                 word = word.lower()
+                unsetemmed = word
                 word = PorterStemmer().stem(word)
-                if word not in vocabulary and word not in stopwords and len(word) > 1:
+                if word not in vocabulary and unsetemmed not in stopwords and len(word) > 1:
                     vocabulary[word] = termId
                     termId += 1
-                if word not in stopwords and len(word) > 1:
+                if unsetemmed not in stopwords and len(word) > 1:
                     tupleList.append((vocabulary[word], documentId[name], positionCounter))
                     if vocabulary[word] not in hashInvertedIndex:
                         innerHash = dict()

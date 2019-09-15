@@ -2,51 +2,41 @@ from nltk.stem import PorterStemmer
 import tqdm
 import sys
 
-def readHashInvertedIndex(fileName):
-    invertedIndex = {}
-    stats = {}
-    fileContents = open(fileName, 'r').readlines()
-    for posting in tqdm.tqdm(fileContents, desc="Reading Index ", ncols=120):
-        entries = posting.split(sep="\t")
-        previousDoc = 0
-        previousPosition = 0
-        currentDoc = int(entries[3].split(",")[0])
-        currentPosition = int(entries[3].split(",")[1])
-        previousDoc = currentDoc
-        previousPosition = currentPosition
-        statList = [int(entries[1]), int(entries[2])]
-        stats[int(entries[0])] = statList
-        if int(entries[0]) not in invertedIndex:
-            innerHash = dict()
-            innerHash.setdefault(currentDoc, []).append(currentPosition)
-            invertedIndex[int(entries[0])] = innerHash
-        else:
-            if currentDoc in invertedIndex[int(entries[0])]:
-                tempList = invertedIndex[int(entries[0])][currentDoc]
-                tempList.append(currentPosition)
-                invertedIndex[int(entries[0])][currentDoc] = tempList
-            else:
-                tempList = [currentPosition]
-                invertedIndex[int(entries[0])][currentDoc] = tempList
 
-        for i in range(4, len(entries)):
-            docPositionPair = entries[i].split(",")
-            currentDoc = int(docPositionPair[0])
-            currentPosition = int(docPositionPair[1])
-            decodedDocId = currentDoc + previousDoc
-            if decodedDocId != previousDoc:
-                previousPosition = 0
-            decodedPosition = currentPosition + previousPosition
-            if decodedDocId in invertedIndex[int(entries[0])]:
-                tempList = invertedIndex[int(entries[0])][decodedDocId]
-                tempList.append(decodedPosition)
-                invertedIndex[int(entries[0])][decodedDocId] = tempList
-            else:
-                tempList = [decodedPosition]
-                invertedIndex[int(entries[0])][decodedDocId] = tempList
-            previousPosition = decodedPosition
-            previousDoc = decodedDocId
-    return invertedIndex, stats
+def readHashInvertedIndex(id):
+    docHash = {}
+    stats = {}
+    posting = open("term_index.txt", 'r').read().splitlines()[id]
+    entries = posting.split(sep=" ")
+    previousDoc = 0
+    previousPosition = 0
+    currentDoc = int(entries[3].split(",")[0])
+    currentPosition = int(entries[3].split(",")[1])
+    previousDoc = currentDoc
+    previousPosition = currentPosition
+    statList = [int(entries[1]), int(entries[2])]
+    stats[int(entries[0])] = statList
+    if currentDoc in docHash:
+        tempList = docHash[currentDoc]
+        tempList.append(currentPosition)
+    else:
+        tempList = [currentPosition]
+        docHash[currentDoc] = tempList
+    for i in range(4, len(entries)):
+        decodedDoc = int(entries[i].split(",")[0]) + previousDoc
+
+        if decodedDoc != previousDoc:
+            previousPosition = 0
+        decodedPosition = int(entries[i].split(",")[1]) + previousPosition
+        if decodedDoc in docHash:
+            tempList = docHash[decodedDoc]
+            tempList.append(decodedPosition)
+        else:
+            tempList = [decodedPosition]
+            docHash[decodedDoc] = tempList
+        previousDoc = decodedDoc
+        previousPosition = decodedPosition
+    return docHash, stats
 
 
 def readVocabulary():
@@ -69,13 +59,15 @@ def readDocIds():
     return docIds
 
 
-if sys.argv[1]:
-    index, stats = readHashInvertedIndex("term_index.txt")
+if len(sys.argv) > 1:
     vocab = readVocabulary()
     docs = readDocIds()
+
     query = str(sys.argv[1])
     query = PorterStemmer().stem(query)
+
     if query in vocab:
+        index, stats = readHashInvertedIndex(vocab[query])
         print("Listing for term : ", str(sys.argv[1]))
         termId = vocab[query]
         print("TERM ID : ", termId)
