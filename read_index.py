@@ -1,6 +1,7 @@
 from nltk.stem import PorterStemmer
 import tqdm
 import sys
+import getopt
 
 
 def readHashInvertedIndex(offset):
@@ -72,22 +73,37 @@ def readOffset():
     return offsets
 
 
-if len(sys.argv) > 1:
-    vocab = readVocabulary()
-    docs = readDocIds()
-
-    query = str(sys.argv[1]).lower()
-    query = PorterStemmer().stem(query)
-    offsets = readOffset()
-
-    if query in vocab:
-        index, stats = readHashInvertedIndex(offsets[vocab[query]])
-        print("Listing for term : ", str(sys.argv[1]))
-        termId = vocab[query]
-        print("TERM ID : ", termId)
-        print("Number of documents containing term : ", stats[termId][1])
-        print("Term Frequency in corpus : ", stats[termId][0])
+query = ''
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["term="])
+except getopt.GetoptError:
+    print('Provide the term')
+    sys.exit(2)
+if len(opts) == 0:
+    print('Please Enter in Correct Format')
+    sys.exit()
+for opt, arg in opts:
+    if opt == '-h':
+        print('read_index.py --term <word>')
+        sys.exit()
+    elif opt in ("--term"):
+        query = arg.lower()
     else:
-        print("Word not found")
+        print('provide the query')
+        sys.exit()
+
+vocab = readVocabulary()
+docs = readDocIds()
+
+query = PorterStemmer().stem(query)
+offsets = readOffset()
+
+if query in vocab:
+    index, stats = readHashInvertedIndex(offsets[vocab[query]])
+    print("Listing for term : ", query)
+    termId = vocab[query]
+    print("TERM ID : ", termId)
+    print("Number of documents containing term : ", stats[termId][1])
+    print("Term Frequency in corpus : ", stats[termId][0])
 else:
-    print("Please Enter The Query Word")
+    print("Word not found")
